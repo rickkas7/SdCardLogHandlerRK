@@ -4,7 +4,7 @@
 
 The [full browsable API documentation is here](http://rickkas7.github.io/SdCardLogHandlerRK/).
 
-The official location for this library is: [https://github.com/rickkas7/SdCardLogHandlerRK](ttps://github.com/rickkas7/SdCardLogHandlerRK).
+The official location for this library is: [https://github.com/rickkas7/SdCardLogHandlerRK](https://github.com/rickkas7/SdCardLogHandlerRK).
 
 It's in the Particle community libraries as: SdCardLogHandlerRK.
 
