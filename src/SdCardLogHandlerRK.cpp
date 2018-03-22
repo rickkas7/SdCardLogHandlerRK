@@ -7,7 +7,7 @@
 // 0 = Off
 // 1 = Normal
 // 2 = High
-#define SDCARD_LOGHANDLER_DEBUG_LEVEL 2
+#define SDCARD_LOGHANDLER_DEBUG_LEVEL 1
 
 // Don't change these, just change the debugging level above
 // Note: must use Serial.printlnf here, not Log.info, as these are called from the log handler itself!
