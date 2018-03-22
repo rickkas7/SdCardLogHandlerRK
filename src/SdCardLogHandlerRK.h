@@ -172,7 +172,7 @@ private:
     uint8_t divisor; //!< SPI_FULL_SPEED or SPI_HALF_SPEED passed into the constructor for this object
 
     const char *logsDirName = "logs"; //!< Name of the logs directory, override using withLogsDirName()
-    size_t desiredFileSize = 10000; // 1M 1000000  //!< Desired log file size, override using withDesiredFileSize()
+    size_t desiredFileSize = 1000000;  //!< Desired log file size, override using withDesiredFileSize()
     size_t maxFilesToKeep = 10; //!< Maximum number of log files to keep, override using withMaxFilesToKeep()
     unsigned long cardCheckPeriod = 10000; //!< How often to check when there's no SD card, override using withCardCheckPeriod (in milliseconds)
     bool syncEveryEntry = true; //!< Whether to sync the filesystem after each log entry. Override using withSyncEveryEntry().
