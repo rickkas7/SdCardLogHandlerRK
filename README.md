@@ -157,44 +157,43 @@ That example defaults to INFO but app.network events would be at TRACE level.
 There are also options available to control how logging is done. For example, if you want to change the default log file size to (approximately) 50000 bytes:
 
 ```
-SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE)
-	.withDesiredFileSize(50000);
+SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);
+STARTUP(logHandler.withDesiredFileSize(50000));
 ```
 
 You can chain these together fluent-style to change multiple settings:
 
 ```
-SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE)
-	.withDesiredFileSize(50000)
-	.withMaxFilesToKeep(5);
+SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);
+STARTUP(logHandler.withDesiredFileSize(50000).withMaxFilesToKeep(5));
 ```
 
 By default, SdCardLogHandler writes the log entries to Serial like SerialLogHandler. You can turn this off by using:
 
 ```
-SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE)
-	.withNoSerialLogging();
+SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);
+STARTUP(logHandler.withNoSerialLogging());
 ```
 
 Or if you want to log to Serial1 (or another port) instead:
 
 ```
-SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE)
-	.withWriteToStream(&Serial1);
+SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);
+STARTUP(logHandler.withWriteToStream(&Serial1);
 ```
 
 Normally, a sync operation is done after each log entry, which maximizes the chance the the log entry will be written out to SD card successfully. However, this will slow down operation if you do a lot of logging. You can have the SdFat library manage its own sync, which happens about every 512 bytes of log messages, by turning off sync after every entry:
 
 ```
-SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE)
-	.withSyncEveryEntry(false);
+SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);
+STARTUP(logHandler.withSyncEveryEntry(false);
 ```
 
 Finally, when the SD card is ejected, a check for being inserted is only done at most every 10 seconds. This is because there's a timeout operation that makes the operation slow, and doing it on every log entry would make the performance very bad. You can change this interval by using:
 
 ```
-SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE)
-	.withCardCheckPeriod(30000);
+SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);
+STARTUP(logHandler.withCardCheckPeriod(30000);
 ```
 
 The value is in milliseconds; that changes the value from 10 seconds to 30 seconds.

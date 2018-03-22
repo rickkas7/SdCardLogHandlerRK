@@ -1,5 +1,11 @@
 {\itshape Library for writing rotating logs to SD card on the Particle Photon and Electron}
 
+The \href{http://rickkas7.github.io/SdCardLogHandlerRK/}{\tt full browsable A\+PI documentation is here}.
+
+The official location for this library is\+: \href{https://github.com/rickkas7/SdCardLogHandlerRK}{\tt https\+://github.\+com/rickkas7/\+Sd\+Card\+Log\+Handler\+RK}.
+
+It\textquotesingle{}s in the Particle community libraries as\+: Sd\+Card\+Log\+Handler\+RK.
+
 \subsection*{Hardware}
 
 You\textquotesingle{}ll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that\textquotesingle{}s compatible with the 3.\+3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use \href{https://www.sparkfun.com/products/13743}{\tt this one from Sparkfun} but there are others.
@@ -181,8 +187,8 @@ There are also options available to control how logging is done. For example, if
 
 
 \begin{DoxyCode}
-SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
-    .withDesiredFileSize(50000);
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE);
+STARTUP(logHandler.withDesiredFileSize(50000));
 \end{DoxyCode}
 
 
@@ -190,9 +196,8 @@ You can chain these together fluent-\/style to change multiple settings\+:
 
 
 \begin{DoxyCode}
-SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
-    .withDesiredFileSize(50000)
-    .withMaxFilesToKeep(5);
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE);
+STARTUP(logHandler.withDesiredFileSize(50000).withMaxFilesToKeep(5));
 \end{DoxyCode}
 
 
@@ -200,8 +205,8 @@ By default, \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}}
 
 
 \begin{DoxyCode}
-SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
-    .withNoSerialLogging();
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE);
+STARTUP(logHandler.withNoSerialLogging());
 \end{DoxyCode}
 
 
@@ -209,8 +214,8 @@ Or if you want to log to Serial1 (or another port) instead\+:
 
 
 \begin{DoxyCode}
-SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
-    .withWriteToStream(&Serial1);
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE);
+STARTUP(logHandler.withWriteToStream(&Serial1);
 \end{DoxyCode}
 
 
@@ -218,8 +223,8 @@ Normally, a sync operation is done after each log entry, which maximizes the cha
 
 
 \begin{DoxyCode}
-SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
-    .withSyncEveryEntry(false);
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE);
+STARTUP(logHandler.withSyncEveryEntry(false);
 \end{DoxyCode}
 
 
@@ -227,8 +232,8 @@ Finally, when the SD card is ejected, a check for being inserted is only done at
 
 
 \begin{DoxyCode}
-SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
-    .withCardCheckPeriod(30000);
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE);
+STARTUP(logHandler.withCardCheckPeriod(30000);
 \end{DoxyCode}
 
 
