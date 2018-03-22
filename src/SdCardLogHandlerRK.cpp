@@ -58,6 +58,7 @@ void SdCardLogHandler::scanCard() {
 	needsScanCard = false;
 
 	if (!lastBeginResult) {
+		pinMode(csPin, OUTPUT);
 		lastBeginResult = sd.begin(csPin, divisor);
 		if (!lastBeginResult) {
 			DEBUG_HIGH(("sd.begin failed (no card or no reader)"));
