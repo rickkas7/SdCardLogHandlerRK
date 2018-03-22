@@ -1,0 +1,235 @@
+{\itshape Library for writing rotating logs to SD card on the Particle Photon and Electron}
+
+\subsection*{Hardware}
+
+You\textquotesingle{}ll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that\textquotesingle{}s compatible with the 3.\+3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use \href{https://www.sparkfun.com/products/13743}{\tt this one from Sparkfun} but there are others.
+
+  The SD card reader connects via the S\+PI interface. There are two S\+PI interfaces on the Photon and Electron and you can use either. Note that each S\+PI device must have a separate SS (sometimes called CS) pin. While it\textquotesingle{}s listed in the table below as A2 (or D5), you can use any G\+P\+IO pin.
+
+Primary S\+PI (S\+PI object)
+
+
+\begin{DoxyItemize}
+\item A2 SS
+\item A3 S\+CK
+\item A4 M\+I\+SO
+\item A5 M\+O\+SI
+\end{DoxyItemize}
+
+Secondary S\+PI (S\+P\+I1 object)
+
+
+\begin{DoxyItemize}
+\item D5 SS
+\item D4 S\+CK
+\item D3 M\+I\+SO
+\item D2 M\+O\+SI
+\end{DoxyItemize}
+
+In the picture above\+:
+
+\tabulinesep=1mm
+\begin{longtabu} spread 0pt [c]{*{4}{|X[-1]}|}
+\hline
+\rowcolor{\tableheadbgcolor}\textbf{ Device  }&\textbf{ S\+PI Name  }&\textbf{ SD Reader  }&\textbf{ Color   }\\\cline{1-4}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\rowcolor{\tableheadbgcolor}\textbf{ Device  }&\textbf{ S\+PI Name  }&\textbf{ SD Reader  }&\textbf{ Color   }\\\cline{1-4}
+\endhead
+A2  &SS  &/\+CS  &Yellow   \\\cline{1-4}
+A3  &S\+CK  &S\+CK  &Orange   \\\cline{1-4}
+A4  &M\+I\+SO  &DO  &Blue   \\\cline{1-4}
+A5  &M\+O\+SI  &DI  &Green   \\\cline{1-4}
+3\+V3  &&V\+CC  &Red   \\\cline{1-4}
+G\+ND  &&G\+ND  &Black   \\\cline{1-4}
+&&CD  &\\\cline{1-4}
+\end{longtabu}
+
+
+\subsection*{Using the library}
+
+This library uses the \href{https://docs.particle.io/reference/firmware/#logging}{\tt Logging A\+PI} that was added in system firmware 0.\+6.\+0.
+
+For example\+:
+
+
+\begin{DoxyCode}
+Log.trace("Low level debugging message");
+Log.info("This is info message");
+Log.warn("This is warning message");
+Log.error("This is error message");
+
+Log.info("System version: %s", System.version().c\_str());
+\end{DoxyCode}
+
+
+It does not remap Serial, so if you\textquotesingle{}re using Serial.\+print for logging, you should switch to using Log.\+info instead.
+
+The library creates a directory (default\+: \char`\"{}logs\char`\"{}) at the top level of the SD card and stores the log files in that. Each log file is a .txt file 6-\/digit number beginning with 000001.\+txt.
+
+The default log file is 1 MB (1000000 bytes), but you can reconfigure this. The actual size will be slightly larger than that, as the log is rotated when it exceeds the limit, and the file will always contain a whole log entry.
+
+When rotated, the default is to keep 10 log files, but this is configurable. The oldest is deleted when the maximum number is reached.
+
+By default, \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}} writes to Serial as well, like Serial\+Log\+Handler. This can be reconfigured.
+
+This is the example program\+:
+
+
+\begin{DoxyCode}
+#include "Particle.h"
+
+#include "SdFat.h"
+#include "SdCardLogHandlerRK.h"
+
+SYSTEM\_THREAD(ENABLED);
+
+const int SD\_CHIP\_SELECT = A2;
+SdFat sd;
+
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED);
+
+size\_t counter = 0;
+
+void setup() \{
+    Serial.begin(9600);
+\}
+
+void loop() \{
+    Log.info("testing counter=%d", counter++);
+    delay(1000);
+\}
+\end{DoxyCode}
+
+
+\subsubsection*{Initialize the Sd\+Fat library}
+
+You normally initialize the Sd\+Fat library by creating a global object for it. For example\+:
+
+
+\begin{DoxyCode}
+SdFat sd;
+\end{DoxyCode}
+
+
+If you are using S\+P\+I1 (the D pins) instead, use\+:
+
+
+\begin{DoxyCode}
+SdFat sd(1);
+\end{DoxyCode}
+
+
+Note that you should not call {\ttfamily sd.\+begin()} in setup! The begin call is done by the \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}} because it needs to be done earlier than setup, and also every time the card is ejected.
+
+If you need to check for a successful call to begin in your code, instead using {\ttfamily log\+Handler.\+get\+Last\+Begin\+Result()}. You might do this before using the SD card in your code. If there is no SD card inserted, the result will be false.
+
+\subsubsection*{Initialize the \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}}}
+
+Normally you initialize the \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}} by creating a global object like this\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED);
+\end{DoxyCode}
+
+
+
+\begin{DoxyItemize}
+\item {\ttfamily sd} is the {\ttfamily Sd\+Fat} object, as described in the previous section
+\item {\ttfamily S\+D\+\_\+\+C\+H\+I\+P\+\_\+\+S\+E\+L\+E\+CT} is the pin connected to the C\+S/\+SS pin. In the code above, {\ttfamily S\+D\+\_\+\+C\+H\+I\+P\+\_\+\+S\+E\+L\+E\+CT} is set to A2.
+\item {\ttfamily S\+P\+I\+\_\+\+F\+U\+L\+L\+\_\+\+S\+P\+E\+ED} determines the speed to use, either full or {\ttfamily S\+P\+I\+\_\+\+H\+A\+L\+F\+\_\+\+S\+P\+E\+ED}.
+\end{DoxyItemize}
+
+There are also two optional parameters\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE);
+\end{DoxyCode}
+
+
+The next optional parameter allows you to set the logging level.
+
+
+\begin{DoxyItemize}
+\item {\ttfamily L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+A\+LL} \+: special value that can be used to enable logging of all messages
+\item {\ttfamily L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+T\+R\+A\+CE} \+: verbose output for debugging purposes
+\item {\ttfamily L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+I\+N\+FO} \+: regular information messages
+\item {\ttfamily L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+W\+A\+RN} \+: warnings and non-\/critical errors
+\item {\ttfamily L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+E\+R\+R\+OR} \+: error messages
+\item {\ttfamily L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+N\+O\+NE} \+: special value that can be used to disable logging of any messages
+\end{DoxyItemize}
+
+And finally, you can use logging categories as well to set the level for certain categories\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_INFO, \{
+    \{ "app.network", LOG\_LEVEL\_TRACE \} 
+\});
+\end{DoxyCode}
+
+
+That example defaults to I\+N\+FO but app.\+network events would be at T\+R\+A\+CE level.
+
+\subsubsection*{Options}
+
+There are also options available to control how logging is done. For example, if you want to change the default log file size to (approximately) 50000 bytes\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
+    .withDesiredFileSize(50000);
+\end{DoxyCode}
+
+
+You can chain these together fluent-\/style to change multiple settings\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
+    .withDesiredFileSize(50000)
+    .withMaxFilesToKeep(5);
+\end{DoxyCode}
+
+
+By default, \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}} writes the log entries to Serial like Serial\+Log\+Handler. You can turn this off by using\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
+    .withNoSerialLogging();
+\end{DoxyCode}
+
+
+Or if you want to log to Serial1 (or another port) instead\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
+    .withWriteToStream(&Serial1);
+\end{DoxyCode}
+
+
+Normally, a sync operation is done after each log entry, which maximizes the chance the the log entry will be written out to SD card successfully. However, this will slow down operation if you do a lot of logging. You can have the Sd\+Fat library manage its own sync, which happens about every 512 bytes of log messages, by turning off sync after every entry\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
+    .withSyncEveryEntry(false);
+\end{DoxyCode}
+
+
+Finally, when the SD card is ejected, a check for being inserted is only done at most every 10 seconds. This is because there\textquotesingle{}s a timeout operation that makes the operation slow, and doing it on every log entry would make the performance very bad. You can change this interval by using\+:
+
+
+\begin{DoxyCode}
+SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_TRACE)
+    .withCardCheckPeriod(30000);
+\end{DoxyCode}
+
+
+The value is in milliseconds; that changes the value from 10 seconds to 30 seconds. 
