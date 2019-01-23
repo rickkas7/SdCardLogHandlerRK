@@ -26,6 +26,7 @@ size_t counter = 0;
 
 void setup() {
 	Serial.begin(9600);
+	sdLogHandler.setup();
 }
 
 void loop() {

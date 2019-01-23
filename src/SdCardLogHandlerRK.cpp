@@ -31,14 +31,16 @@
 SdCardLogHandler::SdCardLogHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level, LogCategoryFilters filters) :
 	StreamLogHandler(*this, level, filters), SdCardPrintHandler(sd, csPin, spiSettings) {
 
-	// Add this handler into the system log manager
-	LogManager::instance()->addHandler(this);
-
 	// This was the old default for SdCardLogHandler. The subclass SdCardPrintHandler now defaults to NULL.
 	withWriteToStream(&Serial);
 }
 
 SdCardLogHandler::~SdCardLogHandler() {
+}
+
+void SdCardLogHandler::setup() {
+	// Add this handler into the system log manager
+	LogManager::instance()->addHandler(this);
 }
 
 size_t SdCardLogHandler::write(uint8_t c) {

@@ -217,6 +217,14 @@ public:
 	virtual ~SdCardLogHandler();
 
 	/**
+	 * @brief Must be called from setup (added in 0.0.6)
+	 *
+	 * On mesh devices, it's not safe to set up the log handler at global object construction time and you will likely
+	 * fault.
+	 */
+	void setup();
+
+	/**
 	 * @brief Virtual override for the StreamLogHandler to write data to the log
 	 */
     virtual size_t write(uint8_t);
