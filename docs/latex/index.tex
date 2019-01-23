@@ -6,9 +6,11 @@ The official location for this library is\+: \href{https://github.com/rickkas7/S
 
 It\textquotesingle{}s in the Particle community libraries as\+: Sd\+Card\+Log\+Handler\+RK.
 
+It\textquotesingle{}s also possible (as of version 0.\+0.\+5) to use this to write an arbitrary stream of data, not hooked into the logging A\+PI. See \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}, below.
+
 \subsection*{Hardware}
 
-You\textquotesingle{}ll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that\textquotesingle{}s compatible with the 3.\+3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use \href{https://www.sparkfun.com/products/13743}{\tt this one from Sparkfun} but there are others.
+You\textquotesingle{}ll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that\textquotesingle{}s compatible with the 3.\+3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use \href{https://www.sparkfun.com/products/13743}{\tt this one from Sparkfun} but there are others. \href{https://www.adafruit.com/product/254}{\tt This one from Adafruit} works as well.
 
   The SD card reader connects via the S\+PI interface. There are two S\+PI interfaces on the Photon and Electron and you can use either. Note that each S\+PI device must have a separate SS (sometimes called CS) pin. While it\textquotesingle{}s listed in the table below as A2 (or D5), you can use any G\+P\+IO pin.
 
@@ -53,6 +55,20 @@ G\+ND  &&G\+ND  &Black   \\\cline{1-4}
 &&CD  &\\\cline{1-4}
 \end{longtabu}
 
+
+\subsubsection*{Adafruit Ada\+Logger Feather\+Wing}
+
+You can also use the \href{https://www.adafruit.com/product/2922}{\tt Adafruit Ada\+Logger Feather\+Wing}. It contains an SD card reader and a R\+TC (real-\/time clock).
+
+ It connects to primary S\+PI (S\+PI object). The default connection is D5 for the SD card CS pin. It\textquotesingle{}s possible to cut a trace and add a jumper wire to change the CS pin.
+
+
+\begin{DoxyItemize}
+\item D5 CS
+\item A3 S\+CK
+\item A4 M\+I\+SO
+\item A5 M\+O\+SI
+\end{DoxyItemize}
 
 \subsection*{Using the library}
 
@@ -181,7 +197,28 @@ SdCardLogHandler logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED, LOG\_LEVEL\_
 
 That example defaults to I\+N\+FO but app.\+network events would be at T\+R\+A\+CE level.
 
+\subsubsection*{Using \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}}
+
+Instead of using \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}}, you can use \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}. This works like \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}}, except it does not hook into the system log handler. This makes it useful for logging arbitrary data, and not have system logs mixed in.
+
+
+\begin{DoxyCode}
+SdCardPrintHandler printToCard(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED);
+\end{DoxyCode}
+
+
+You can use any of the print, println, or printf methods to print to the log file. The same circular log file structure is used, and the card is only written to after a ~\newline
+ or println. A line is never broken up across multiple files.
+
+
+\begin{DoxyCode}
+printToCard.println("testing!");
+\end{DoxyCode}
+
+
 \subsubsection*{Options}
+
+The options below work with both \mbox{\hyperlink{class_sd_card_log_handler}{Sd\+Card\+Log\+Handler}} and \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}.
 
 There are also options available to control how logging is done. For example, if you want to change the default log file size to (approximately) 50000 bytes\+:
 

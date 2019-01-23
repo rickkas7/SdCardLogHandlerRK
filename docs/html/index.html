@@ -69,8 +69,9 @@ $(function() {
 <p>The <a href="http://rickkas7.github.io/SdCardLogHandlerRK/">full browsable API documentation is here</a>.</p>
 <p>The official location for this library is: <a href="https://github.com/rickkas7/SdCardLogHandlerRK">https://github.com/rickkas7/SdCardLogHandlerRK</a>.</p>
 <p>It's in the Particle community libraries as: SdCardLogHandlerRK.</p>
+<p>It's also possible (as of version 0.0.5) to use this to write an arbitrary stream of data, not hooked into the logging API. See <a class="el" href="class_sd_card_print_handler.html" title="Class for writing a data stream to SD card. ">SdCardPrintHandler</a>, below.</p>
 <h2>Hardware</h2>
-<p>You'll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that's compatible with the 3.3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use <a href="https://www.sparkfun.com/products/13743">this one from Sparkfun</a> but there are others.</p>
+<p>You'll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that's compatible with the 3.3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use <a href="https://www.sparkfun.com/products/13743">this one from Sparkfun</a> but there are others. <a href="https://www.adafruit.com/product/254">This one from Adafruit</a> works as well.</p>
 <div class="image">
 <img src="photon.jpg" alt="photon.jpg"/>
 <div class="caption">
@@ -113,6 +114,19 @@ Electron</div></div>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">CD  </td><td class="markdownTableBodyNone"></td></tr>
 </table>
+<h3>Adafruit AdaLogger FeatherWing</h3>
+<p>You can also use the <a href="https://www.adafruit.com/product/2922">Adafruit AdaLogger FeatherWing</a>. It contains an SD card reader and a RTC (real-time clock).</p>
+<div class="image">
+<img src="feather-logger.jpg" alt="feather-logger.jpg"/>
+<div class="caption">
+Adafruit Feather AdaLogger</div></div>
+<p> It connects to primary SPI (SPI object). The default connection is D5 for the SD card CS pin. It's possible to cut a trace and add a jumper wire to change the CS pin.</p>
+<ul>
+<li>D5 CS</li>
+<li>A3 SCK</li>
+<li>A4 MISO</li>
+<li>A5 MOSI</li>
+</ul>
 <h2>Using the library</h2>
 <p>This library uses the <a href="https://docs.particle.io/reference/firmware/#logging">Logging API</a> that was added in system firmware 0.6.0.</p>
 <p>For example:</p>
@@ -146,7 +160,12 @@ Electron</div></div>
 </ul>
 <p>And finally, you can use logging categories as well to set the level for certain categories:</p>
 <div class="fragment"><div class="line">SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_INFO, {</div><div class="line">    { &quot;app.network&quot;, LOG_LEVEL_TRACE } </div><div class="line">});</div></div><!-- fragment --><p>That example defaults to INFO but app.network events would be at TRACE level.</p>
-<h3>Options</h3>
+<h3>Using <a class="el" href="class_sd_card_print_handler.html" title="Class for writing a data stream to SD card. ">SdCardPrintHandler</a></h3>
+<p>Instead of using <a class="el" href="class_sd_card_log_handler.html" title="Class for logging to SD card. ">SdCardLogHandler</a>, you can use <a class="el" href="class_sd_card_print_handler.html" title="Class for writing a data stream to SD card. ">SdCardPrintHandler</a>. This works like <a class="el" href="class_sd_card_log_handler.html" title="Class for logging to SD card. ">SdCardLogHandler</a>, except it does not hook into the system log handler. This makes it useful for logging arbitrary data, and not have system logs mixed in.</p>
+<div class="fragment"><div class="line">SdCardPrintHandler printToCard(sd, SD_CHIP_SELECT, SPI_FULL_SPEED);</div></div><!-- fragment --><p>You can use any of the print, println, or printf methods to print to the log file. The same circular log file structure is used, and the card is only written to after a <br />
+ or println. A line is never broken up across multiple files.</p>
+<div class="fragment"><div class="line">printToCard.println(&quot;testing!&quot;);</div></div><!-- fragment --><h3>Options</h3>
+<p>The options below work with both <a class="el" href="class_sd_card_log_handler.html" title="Class for logging to SD card. ">SdCardLogHandler</a> and <a class="el" href="class_sd_card_print_handler.html" title="Class for writing a data stream to SD card. ">SdCardPrintHandler</a>.</p>
 <p>There are also options available to control how logging is done. For example, if you want to change the default log file size to (approximately) 50000 bytes:</p>
 <div class="fragment"><div class="line">SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);</div><div class="line">STARTUP(logHandler.withDesiredFileSize(50000));</div></div><!-- fragment --><p>You can chain these together fluent-style to change multiple settings:</p>
 <div class="fragment"><div class="line">SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_TRACE);</div><div class="line">STARTUP(logHandler.withDesiredFileSize(50000).withMaxFilesToKeep(5));</div></div><!-- fragment --><p>By default, <a class="el" href="class_sd_card_log_handler.html" title="Class for logging to SD card. ">SdCardLogHandler</a> writes the log entries to Serial like SerialLogHandler. You can turn this off by using:</p>

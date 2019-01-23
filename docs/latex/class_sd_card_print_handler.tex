@@ -1,0 +1,197 @@
+\hypertarget{class_sd_card_print_handler}{}\section{Sd\+Card\+Print\+Handler Class Reference}
+\label{class_sd_card_print_handler}\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+
+
+Class for writing a data stream to SD card.  
+
+
+
+
+{\ttfamily \#include $<$Sd\+Card\+Log\+Handler\+R\+K.\+h$>$}
+
+Inheritance diagram for Sd\+Card\+Print\+Handler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_sd_card_print_handler}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_sd_card_print_handler_a1e9332a9b5a9a5a93a89d55dc8ee8c56}\label{class_sd_card_print_handler_a1e9332a9b5a9a5a93a89d55dc8ee8c56}} 
+{\bfseries Sd\+Card\+Print\+Handler} (Sd\+Fat \&sd, uint8\+\_\+t cs\+Pin, uint8\+\_\+t divisor)
+\item 
+\mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}} \& \mbox{\hyperlink{class_sd_card_print_handler_aac9a7f9d1a22db39acfc17c4a61c9419}{with\+Logs\+Dir\+Name}} (const char $\ast$value)
+\begin{DoxyCompactList}\small\item\em Sets the log directory name. Default\+: \char`\"{}logs\char`\"{}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}} \& \mbox{\hyperlink{class_sd_card_print_handler_a72ba4425d0d1551a2ad4513f2bfaefa5}{with\+Desired\+File\+Size}} (size\+\_\+t value)
+\begin{DoxyCompactList}\small\item\em Desired file size in bytes. Default\+: 1000000 bytes (1 MB) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}} \& \mbox{\hyperlink{class_sd_card_print_handler_a8b0884db89c62250822641cde11a5abc}{with\+Max\+Files\+To\+Keep}} (size\+\_\+t value)
+\begin{DoxyCompactList}\small\item\em The number of files to keep. Default\+: 10. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}} \& \mbox{\hyperlink{class_sd_card_print_handler_a0ddcaed71e575f70e5a5240cd5765002}{with\+Card\+Check\+Period}} (unsigned long value)
+\begin{DoxyCompactList}\small\item\em The number of milliseconds to between checks to see if the SD card is present. Default\+: 10000. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}} \& \mbox{\hyperlink{class_sd_card_print_handler_a9172a9620d575738e1387005e16759f9}{with\+Sync\+Every\+Entry}} (size\+\_\+t value)
+\begin{DoxyCompactList}\small\item\em Set whether to sync the file system after every log entry. Default\+: true. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}} \& \mbox{\hyperlink{class_sd_card_print_handler_a4c3cac5a8a622e51ce43d5942dc47c7a}{with\+No\+Serial\+Logging}} ()
+\begin{DoxyCompactList}\small\item\em The default is to log to Serial as well as SD card; to only log to SD card call this method. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}} \& \mbox{\hyperlink{class_sd_card_print_handler_acdb2ef1ae77acdfd9c3d355548c94750}{with\+Write\+To\+Stream}} (Stream $\ast$value)
+\begin{DoxyCompactList}\small\item\em Write to a different Stream, such as Serial1. Default\+: Serial. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_sd_card_print_handler_adf54a74997d6fd7e9043199d0237c4ea}\label{class_sd_card_print_handler_adf54a74997d6fd7e9043199d0237c4ea}} 
+virtual size\+\_\+t \mbox{\hyperlink{class_sd_card_print_handler_adf54a74997d6fd7e9043199d0237c4ea}{write}} (uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Virtual override for the Stream\+Log\+Handler to write data to the log. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_sd_card_print_handler_ab8e7ac1b3c60f5545ea297e2f04b9ccf}{get\+Last\+Begin\+Result}} () const
+\begin{DoxyCompactList}\small\item\em Checks the result of the last time sd.\+begin() was called. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Class for writing a data stream to SD card. 
+
+You normally instantiate one of these as a global variable, passing in the Sd\+Fat object and the parameters you\textquotesingle{}d normally pass to Sd\+Fat\+::begin().
+
+
+\begin{DoxyCode}
+\textcolor{keyword}{const} \textcolor{keywordtype}{int} SD\_CHIP\_SELECT = A2;
+SdFat sd;
+
+\mbox{\hyperlink{class_sd_card_log_handler}{SdCardLogHandler}} logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED);
+\end{DoxyCode}
+
+
+You can pass additional options using the fluent-\/style methods beginning with \char`\"{}with\char`\"{} like \mbox{\hyperlink{class_sd_card_print_handler_aac9a7f9d1a22db39acfc17c4a61c9419}{with\+Logs\+Dir\+Name()}}.
+
+This class is a subclass of Print, so you can use all of the overloads of print, println, and printf that are supported by Print. Data is buffered until the ~\newline
+, then written to the card, for performance reasons and to avoid splitting a line between multiple files. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_sd_card_print_handler_ab8e7ac1b3c60f5545ea297e2f04b9ccf}\label{class_sd_card_print_handler_ab8e7ac1b3c60f5545ea297e2f04b9ccf}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!get\+Last\+Begin\+Result@{get\+Last\+Begin\+Result}}
+\index{get\+Last\+Begin\+Result@{get\+Last\+Begin\+Result}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{get\+Last\+Begin\+Result()}{getLastBeginResult()}}
+{\footnotesize\ttfamily bool Sd\+Card\+Print\+Handler\+::get\+Last\+Begin\+Result (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Checks the result of the last time sd.\+begin() was called. 
+
+This call determines whether the last call to sd.\+begin() succeeded or not. You might do this if you also need to call Sd\+Fat from your own code. This library needs to call sd.\+begin() internally to do it very early, and also after the SD card is ejected.
+
+\begin{DoxyReturn}{Returns}
+true if begin was successful 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_sd_card_print_handler_a0ddcaed71e575f70e5a5240cd5765002}\label{class_sd_card_print_handler_a0ddcaed71e575f70e5a5240cd5765002}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!with\+Card\+Check\+Period@{with\+Card\+Check\+Period}}
+\index{with\+Card\+Check\+Period@{with\+Card\+Check\+Period}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{with\+Card\+Check\+Period()}{withCardCheckPeriod()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}\& Sd\+Card\+Print\+Handler\+::with\+Card\+Check\+Period (\begin{DoxyParamCaption}\item[{unsigned long}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+The number of milliseconds to between checks to see if the SD card is present. Default\+: 10000. 
+
+When you remove the SD card, it\textquotesingle{}s necessary to reinitialize the Sd\+Fat library and check for the card. Because of timeouts, this takes a while, so logging would become very slow if every attempt to log caused this delay. The card check period reduces the frequency of checking to see if a card has been inserted.
+
+Note that as long as you leave the card in, you won\textquotesingle{}t experience this.
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The time in milliseconds (unsigned ling) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_sd_card_print_handler_a72ba4425d0d1551a2ad4513f2bfaefa5}\label{class_sd_card_print_handler_a72ba4425d0d1551a2ad4513f2bfaefa5}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!with\+Desired\+File\+Size@{with\+Desired\+File\+Size}}
+\index{with\+Desired\+File\+Size@{with\+Desired\+File\+Size}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{with\+Desired\+File\+Size()}{withDesiredFileSize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}\& Sd\+Card\+Print\+Handler\+::with\+Desired\+File\+Size (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Desired file size in bytes. Default\+: 1000000 bytes (1 MB) 
+
+Each log file will be approximately this size. It typically will be slightly larger than this, as the log is rotated when the size is exceeded. If changed, it will only be enforced for the current log file; old log files are not modified.
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The maximum file size for a log file in bytes (size\+\_\+t) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_sd_card_print_handler_aac9a7f9d1a22db39acfc17c4a61c9419}\label{class_sd_card_print_handler_aac9a7f9d1a22db39acfc17c4a61c9419}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!with\+Logs\+Dir\+Name@{with\+Logs\+Dir\+Name}}
+\index{with\+Logs\+Dir\+Name@{with\+Logs\+Dir\+Name}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{with\+Logs\+Dir\+Name()}{withLogsDirName()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}\& Sd\+Card\+Print\+Handler\+::with\+Logs\+Dir\+Name (\begin{DoxyParamCaption}\item[{const char $\ast$}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the log directory name. Default\+: \char`\"{}logs\char`\"{}. 
+
+The logs must always be in a subdirectory, so make sure you set it to something, setting it to an empty string or N\+U\+LL will disable logging.
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The name to use instead of \char`\"{}logs\char`\"{} (const char $\ast$). This is not copied, as a constant string is normally passed in. If you calculate it, make sure you put it in a static or allocated buffer! \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_sd_card_print_handler_a8b0884db89c62250822641cde11a5abc}\label{class_sd_card_print_handler_a8b0884db89c62250822641cde11a5abc}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!with\+Max\+Files\+To\+Keep@{with\+Max\+Files\+To\+Keep}}
+\index{with\+Max\+Files\+To\+Keep@{with\+Max\+Files\+To\+Keep}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{with\+Max\+Files\+To\+Keep()}{withMaxFilesToKeep()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}\& Sd\+Card\+Print\+Handler\+::with\+Max\+Files\+To\+Keep (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+The number of files to keep. Default\+: 10. 
+
+The maximum number of log files to keep is enforced at startup, when a SD card is inserted, and when the current log file is full.
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & Number of files to kee. Values are 1 $<$= num $<$= 999999 (size\+\_\+t) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_sd_card_print_handler_a4c3cac5a8a622e51ce43d5942dc47c7a}\label{class_sd_card_print_handler_a4c3cac5a8a622e51ce43d5942dc47c7a}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!with\+No\+Serial\+Logging@{with\+No\+Serial\+Logging}}
+\index{with\+No\+Serial\+Logging@{with\+No\+Serial\+Logging}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{with\+No\+Serial\+Logging()}{withNoSerialLogging()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}\& Sd\+Card\+Print\+Handler\+::with\+No\+Serial\+Logging (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+The default is to log to Serial as well as SD card; to only log to SD card call this method. 
+
+If you want to log to a different stream (like Serial1), use \mbox{\hyperlink{class_sd_card_print_handler_acdb2ef1ae77acdfd9c3d355548c94750}{with\+Write\+To\+Stream()}} instead. \mbox{\Hypertarget{class_sd_card_print_handler_a9172a9620d575738e1387005e16759f9}\label{class_sd_card_print_handler_a9172a9620d575738e1387005e16759f9}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!with\+Sync\+Every\+Entry@{with\+Sync\+Every\+Entry}}
+\index{with\+Sync\+Every\+Entry@{with\+Sync\+Every\+Entry}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{with\+Sync\+Every\+Entry()}{withSyncEveryEntry()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}\& Sd\+Card\+Print\+Handler\+::with\+Sync\+Every\+Entry (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set whether to sync the file system after every log entry. Default\+: true. 
+
+Setting this to false dramatically improves the performance, but it also makes it much more likely that in the case of a reboot, the last log messages will be lost. The Sd\+Fat library normally only flushes the file in 512 byte increments so if you log infrequently, you could lose a number of log messages.
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The value to set (size\+\_\+t) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_sd_card_print_handler_acdb2ef1ae77acdfd9c3d355548c94750}\label{class_sd_card_print_handler_acdb2ef1ae77acdfd9c3d355548c94750}} 
+\index{Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}!with\+Write\+To\+Stream@{with\+Write\+To\+Stream}}
+\index{with\+Write\+To\+Stream@{with\+Write\+To\+Stream}!Sd\+Card\+Print\+Handler@{Sd\+Card\+Print\+Handler}}
+\subsubsection{\texorpdfstring{with\+Write\+To\+Stream()}{withWriteToStream()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_sd_card_print_handler}{Sd\+Card\+Print\+Handler}}\& Sd\+Card\+Print\+Handler\+::with\+Write\+To\+Stream (\begin{DoxyParamCaption}\item[{Stream $\ast$}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Write to a different Stream, such as Serial1. Default\+: Serial. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The stream to write log output to (such as \&Serial1) or N\+U\+LL to only write to the SD card.\\
+\hline
+\end{DoxyParams}
+Only one stream is supported. Setting it again replaces the last setting. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/Sd\+Card\+Log\+Handler\+R\+K.\+h\item 
+src/Sd\+Card\+Log\+Handler\+R\+K.\+cpp\end{DoxyCompactItemize}

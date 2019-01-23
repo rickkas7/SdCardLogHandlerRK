@@ -8,9 +8,11 @@ The official location for this library is: [https://github.com/rickkas7/SdCardLo
 
 It's in the Particle community libraries as: SdCardLogHandlerRK.
 
+It's also possible (as of version 0.0.5) to use this to write an arbitrary stream of data, not hooked into the logging API. See SdCardPrintHandler, below.
+
 ## Hardware
 
-You'll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that's compatible with the 3.3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use [this one from Sparkfun](https://www.sparkfun.com/products/13743) but there are others.
+You'll need a SD card reader, presumably a Micro SD card reader. Make sure you get one that's compatible with the 3.3V logic levels used on the Photon and Electron. Some readers designed for the Arduino expect the 5V logic levels used by the original Arduino. I use [this one from Sparkfun](https://www.sparkfun.com/products/13743) but there are others. [This one from Adafruit](https://www.adafruit.com/product/254) works as well.
 
 ![Photon](images/photon.jpg)
 
@@ -43,6 +45,20 @@ In the picture above:
 | 3V3    |          | VCC       | Red    |
 | GND    |          | GND       | Black  |
 |        |          | CD        |        |
+
+
+### Adafruit AdaLogger FeatherWing
+
+You can also use the [Adafruit AdaLogger FeatherWing](https://www.adafruit.com/product/2922). It contains an SD card reader and a RTC (real-time clock).
+
+![Adafruit Feather AdaLogger](images/feather-logger.jpg)
+
+It connects to primary SPI (SPI object). The default connection is D5 for the SD card CS pin. It's possible to cut a trace and add a jumper wire to change the CS pin.
+
+- D5 CS
+- A3 SCK
+- A4 MISO
+- A5 MOSI
 
 
 ## Using the library
@@ -152,7 +168,23 @@ SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED, LOG_LEVEL_INFO, 
 
 That example defaults to INFO but app.network events would be at TRACE level.
 
+### Using SdCardPrintHandler
+
+Instead of using SdCardLogHandler, you can use SdCardPrintHandler. This works like SdCardLogHandler, except it does not hook into the system log handler. This makes it useful for logging arbitrary data, and not have system logs mixed in.
+
+```
+SdCardPrintHandler printToCard(sd, SD_CHIP_SELECT, SPI_FULL_SPEED);
+```
+
+You can use any of the print, println, or printf methods to print to the log file. The same circular log file structure is used, and the card is only written to after a \n or println. A line is never broken up across multiple files.
+
+```
+printToCard.println("testing!");
+```
+
 ### Options
+
+The options below work with both SdCardLogHandler and SdCardPrintHandler.
 
 There are also options available to control how logging is done. For example, if you want to change the default log file size to (approximately) 50000 bytes:
 
@@ -197,3 +229,5 @@ STARTUP(logHandler.withCardCheckPeriod(30000);
 ```
 
 The value is in milliseconds; that changes the value from 10 seconds to 30 seconds.
+
+

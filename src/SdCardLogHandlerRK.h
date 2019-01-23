@@ -6,12 +6,12 @@
 
 #include <set>
 
+
 /**
- * @brief Class for logging to SD card
+ * @brief Class for writing a data stream to SD card
  *
  * You normally instantiate one of these as a global variable, passing in the SdFat object and the parameters
- * you'd normally pass to SdFat::begin(). You can optionally pass the LogLevel and LogCategoryFilters parameters
- * you'd pass to the LogHandler constructor.
+ * you'd normally pass to SdFat::begin().
  *
  * ~~~~{.c}
  * const int SD_CHIP_SELECT = A2;
@@ -21,20 +21,15 @@
  * ~~~~
  *
  * You can pass additional options using the fluent-style methods beginning with "with" like withLogsDirName().
+ *
+ * This class is a subclass of Print, so you can use all of the overloads of print, println, and printf that are supported
+ * by Print. Data is buffered until the \n, then written to the card, for performance reasons and to avoid splitting
+ * a line between multiple files.
  */
-class SdCardLogHandler : public StreamLogHandler, Print {
+class SdCardPrintHandler : public Print {
 public:
-	/**
-	 * @brief Constructor. The object is normally instantiated as a global object.
-	 *
-	 * @param sd The SdFat object, normally allocated a global object.
-	 * @param csPin The pin used for the SPI chip select for the SD card reader
-	 * @param divisor Usually either SPI_FULL_SPEED or SPI_HALF_SPEED.
-	 * @param level  (optional, default is LOG_LEVEL_INFO)
-	 * @param filters (optional, default is none)
-	 */
-	SdCardLogHandler(SdFat &sd, uint8_t csPin, uint8_t divisor, LogLevel level = LOG_LEVEL_INFO, LogCategoryFilters filters = {});
-	virtual ~SdCardLogHandler();
+	SdCardPrintHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings);
+	virtual ~SdCardPrintHandler();
 
 	/**
 	 * @brief Sets the log directory name. Default: "logs"
@@ -46,7 +41,7 @@ public:
 	 * passed in. If you calculate it, make sure you put it in a static or allocated buffer!
 	 *
 	 */
-	inline SdCardLogHandler &withLogsDirName(const char *value) { logsDirName = value; return *this; };
+	inline SdCardPrintHandler &withLogsDirName(const char *value) { logsDirName = value; return *this; };
 
 	/**
 	 * @brief Desired file size in bytes. Default: 1000000 bytes (1 MB)
@@ -57,7 +52,7 @@ public:
 	 *
 	 * @param value The maximum file size for a log file in bytes (size_t)
 	 */
-	inline SdCardLogHandler &withDesiredFileSize(size_t value) { desiredFileSize = value; return *this; };
+	inline SdCardPrintHandler &withDesiredFileSize(size_t value) { desiredFileSize = value; return *this; };
 
 	/**
 	 * @brief The number of files to keep. Default: 10
@@ -67,7 +62,7 @@ public:
 	 *
 	 * @param value Number of files to kee. Values are 1 <= num <= 999999 (size_t)
 	 */
-	inline SdCardLogHandler &withMaxFilesToKeep(size_t value) { maxFilesToKeep = value; return *this; };
+	inline SdCardPrintHandler &withMaxFilesToKeep(size_t value) { maxFilesToKeep = value; return *this; };
 
 	/**
 	 * @brief The number of milliseconds to between checks to see if the SD card is present. Default: 10000
@@ -80,7 +75,7 @@ public:
 
 	 * @param value The time in milliseconds (unsigned ling)
 	 */
-	inline SdCardLogHandler &withCardCheckPeriod(unsigned long value) { cardCheckPeriod = value; return *this; };
+	inline SdCardPrintHandler &withCardCheckPeriod(unsigned long value) { cardCheckPeriod = value; return *this; };
 
 	/**
 	 * @brief Set whether to sync the file system after every log entry. Default: true
@@ -91,14 +86,14 @@ public:
 	 *
 	 * @param value The value to set (size_t)
 	 */
-	inline SdCardLogHandler &withSyncEveryEntry(size_t value) { syncEveryEntry = value; return *this; };
+	inline SdCardPrintHandler &withSyncEveryEntry(size_t value) { syncEveryEntry = value; return *this; };
 
 	/**
 	 * @brief The default is to log to Serial as well as SD card; to only log to SD card call this method.
 	 *
 	 * If you want to log to a different stream (like Serial1), use withWriteToStream() instead.
 	 */
-	inline SdCardLogHandler &withNoSerialLogging() { writeToStream = NULL; return *this; };
+	inline SdCardPrintHandler &withNoSerialLogging() { writeToStream = NULL; return *this; };
 
 	/**
 	 * @brief Write to a different Stream, such as Serial1. Default: Serial
@@ -107,7 +102,7 @@ public:
 	 *
 	 * Only one stream is supported. Setting it again replaces the last setting.
 	 */
-	inline SdCardLogHandler &withWriteToStream(Stream *value) { writeToStream = value; return *this; };
+	inline SdCardPrintHandler &withWriteToStream(Stream *value) { writeToStream = value; return *this; };
 
 
 	/**
@@ -169,14 +164,14 @@ private:
 
     SdFat &sd; //!< The SdFat object (typically a globally allocated object passed into the constructor for this object
     uint8_t csPin; //!< The CS/SS pin for the SD card reader passed into the constructor for this object
-    uint8_t divisor; //!< SPI_FULL_SPEED or SPI_HALF_SPEED passed into the constructor for this object
+    SPISettings spiSettings; //!< SPI_FULL_SPEED or SPI_HALF_SPEED passed into the constructor for this object
 
     const char *logsDirName = "logs"; //!< Name of the logs directory, override using withLogsDirName()
     size_t desiredFileSize = 1000000;  //!< Desired log file size, override using withDesiredFileSize()
     size_t maxFilesToKeep = 10; //!< Maximum number of log files to keep, override using withMaxFilesToKeep()
     unsigned long cardCheckPeriod = 10000; //!< How often to check when there's no SD card, override using withCardCheckPeriod (in milliseconds)
     bool syncEveryEntry = true; //!< Whether to sync the filesystem after each log entry. Override using withSyncEveryEntry().
-    Stream *writeToStream = &Serial; //!< Write to another Stream in addition to SD, override using withWriteToStream().
+    Stream *writeToStream = NULL; //!< Write to another Stream in addition to SD, override using withWriteToStream().
 
     size_t bufOffset = 0; //!< Offset we're currently writing to in buf
     uint8_t buf[BUF_SIZE];  //!< Buffer to hold partial log message.
@@ -188,6 +183,44 @@ private:
     FatFile curLogFile; //!< FatFile for the file we're currently writing to
 	std::set<int> fileNums; //!< set of file numbers in the logs directory
 	unsigned long lastCardCheck = 0; //!< millis() value at last time we checked for an SD card, see also cardCheckPeriod
+};
+
+
+/**
+ * @brief Class for logging to SD card
+ *
+ * You normally instantiate one of these as a global variable, passing in the SdFat object and the parameters
+ * you'd normally pass to SdFat::begin(). You can optionally pass the LogLevel and LogCategoryFilters parameters
+ * you'd pass to the LogHandler constructor.
+ *
+ * ~~~~{.c}
+ * const int SD_CHIP_SELECT = A2;
+ * SdFat sd;
+ *
+ * SdCardLogHandler logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED);
+ * ~~~~
+ *
+ * You can pass additional options using the fluent-style methods beginning with "with" like withLogsDirName().
+ */
+class SdCardLogHandler : public StreamLogHandler, public SdCardPrintHandler {
+public:
+	/**
+	 * @brief Constructor. The object is normally instantiated as a global object.
+	 *
+	 * @param sd The SdFat object, normally allocated a global object.
+	 * @param csPin The pin used for the SPI chip select for the SD card reader
+	 * @param spiSettings Usually either SPI_FULL_SPEED or SPI_HALF_SPEED. You can also use a SPISettings object.
+	 * @param level  (optional, default is LOG_LEVEL_INFO)
+	 * @param filters (optional, default is none)
+	 */
+	SdCardLogHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level = LOG_LEVEL_INFO, LogCategoryFilters filters = {});
+	virtual ~SdCardLogHandler();
+
+	/**
+	 * @brief Virtual override for the StreamLogHandler to write data to the log
+	 */
+    virtual size_t write(uint8_t);
+
 };
 
 

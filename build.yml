@@ -1,0 +1,11 @@
+- build: examples/1-simple
+  photon: [0.6.4, 0.7.0, 1.0.0]
+  p1: [1.0.0]
+  electron: [1.0.0]
+  argon: [0.8.0-rc.27]
+  boron: [0.8.0-rc.27]
+  xenon: [0.8.0-rc.27]
+- build: examples/2-categories
+  photon: [0.7.0, 1.0.0]
+  boron: [0.8.0-rc.27]
+  

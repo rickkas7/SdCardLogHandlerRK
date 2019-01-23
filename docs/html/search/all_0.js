@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['getlastbeginresult',['getLastBeginResult',['../class_sd_card_log_handler.html#aa3fae090c48b5c3618adc3a321679d0e',1,'SdCardLogHandler']]]
+  ['getlastbeginresult',['getLastBeginResult',['../class_sd_card_print_handler.html#ab8e7ac1b3c60f5545ea297e2f04b9ccf',1,'SdCardPrintHandler']]]
 ];

@@ -28,21 +28,35 @@
 //
 //
 
-SdCardLogHandler::SdCardLogHandler(SdFat &sd, uint8_t csPin, uint8_t divisor, LogLevel level, LogCategoryFilters filters) :
-	StreamLogHandler(*this, level, filters), sd(sd), csPin(csPin), divisor(divisor) {
-	// Call the begin handler
-	lastBeginResult = sd.begin(csPin, divisor);
-
-	SdFile::dateTimeCallback(dateTimeCallback);
+SdCardLogHandler::SdCardLogHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level, LogCategoryFilters filters) :
+	StreamLogHandler(*this, level, filters), SdCardPrintHandler(sd, csPin, spiSettings) {
 
 	// Add this handler into the system log manager
 	LogManager::instance()->addHandler(this);
+
+	// This was the old default for SdCardLogHandler. The subclass SdCardPrintHandler now defaults to NULL.
+	withWriteToStream(&Serial);
 }
 
 SdCardLogHandler::~SdCardLogHandler() {
 }
 
 size_t SdCardLogHandler::write(uint8_t c) {
+	return SdCardPrintHandler::write(c);
+}
+
+//
+//
+//
+SdCardPrintHandler::SdCardPrintHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings) : sd(sd), csPin(csPin), spiSettings(spiSettings){
+}
+
+SdCardPrintHandler::~SdCardPrintHandler() {
+
+}
+
+
+size_t SdCardPrintHandler::write(uint8_t c) {
 
 	buf[bufOffset++] = c;
 	if (bufOffset >= BUF_SIZE || c == '\n') {
@@ -53,13 +67,16 @@ size_t SdCardLogHandler::write(uint8_t c) {
 	return 1;
 }
 
-void SdCardLogHandler::scanCard() {
+void SdCardPrintHandler::scanCard() {
 	DEBUG_HIGH(("scanCard"));
 	needsScanCard = false;
 
 	if (!lastBeginResult) {
+		// Set the date time callback
+		SdFile::dateTimeCallback(dateTimeCallback);
+
 		pinMode(csPin, OUTPUT);
-		lastBeginResult = sd.begin(csPin, divisor);
+		lastBeginResult = sd.begin(csPin, spiSettings);
 		if (!lastBeginResult) {
 			DEBUG_HIGH(("sd.begin failed (no card or no reader)"));
 			needsScanCard = true;
@@ -110,12 +127,12 @@ void SdCardLogHandler::scanCard() {
 	}
 }
 
-const char *SdCardLogHandler::getName(int num) {
+const char *SdCardPrintHandler::getName(int num) {
 	snprintf(nameBuf, sizeof(nameBuf), "%06u.txt", num);
 	return nameBuf;
 }
 
-bool SdCardLogHandler::openLogFile() {
+bool SdCardPrintHandler::openLogFile() {
 	const char *name = getName(lastFileNum);
 	if (curLogFile.open(&logsDir, name, O_RDWR | O_APPEND | O_CREAT)) {
 		fileNums.insert(lastFileNum);
@@ -129,7 +146,7 @@ bool SdCardLogHandler::openLogFile() {
 }
 
 
-void SdCardLogHandler::checkMaxFiles() {
+void SdCardPrintHandler::checkMaxFiles() {
 	auto it = fileNums.begin();
 
 	while(fileNums.size() > maxFilesToKeep) {
@@ -141,7 +158,7 @@ void SdCardLogHandler::checkMaxFiles() {
 }
 
 
-void SdCardLogHandler::writeBuf() {
+void SdCardPrintHandler::writeBuf() {
 
 	if (writeToStream) {
 		writeToStream->write(buf, bufOffset);
@@ -188,7 +205,7 @@ void SdCardLogHandler::writeBuf() {
 }
 
 // [static]
-void SdCardLogHandler::dateTimeCallback(uint16_t* date, uint16_t* time) {
+void SdCardPrintHandler::dateTimeCallback(uint16_t* date, uint16_t* time) {
 	*date = FAT_DATE(Time.year(), Time.month(), Time.day());
 	*time = FAT_TIME(Time.hour(), Time.minute(), Time.second());
 }
