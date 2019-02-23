@@ -2,6 +2,7 @@
 #define __SDCARDLOGHANDLERRK_H
 
 #include "Particle.h"
+#include "RingBuffer.h"
 #include "SdFat.h"
 
 #include <set>
@@ -202,7 +203,50 @@ private:
  *
  * You can pass additional options using the fluent-style methods beginning with "with" like withLogsDirName().
  */
-class SdCardLogHandler : public StreamLogHandler, public SdCardPrintHandler {
+class SdCardLogHandlerBuffer : public StreamLogHandler, public SdCardPrintHandler, public RingBuffer<uint8_t> {
+public:
+	/**
+	 * @brief Constructor. The object is normally instantiated as a global object.
+	 *
+	 * @param buf Ring buffer pointer
+	 * @param bufSize Ring buffer size
+	 * @param sd The SdFat object, normally allocated a global object.
+	 * @param csPin The pin used for the SPI chip select for the SD card reader
+	 * @param spiSettings Usually either SPI_FULL_SPEED or SPI_HALF_SPEED. You can also use a SPISettings object.
+	 * @param level  (optional, default is LOG_LEVEL_INFO)
+	 * @param filters (optional, default is none)
+	 */
+	SdCardLogHandlerBuffer(uint8_t *buf, size_t bufSize, SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level = LOG_LEVEL_INFO, LogCategoryFilters filters = {});
+	virtual ~SdCardLogHandlerBuffer();
+
+	/**
+	 * @brief Must be called from setup (added in 0.0.6)
+	 *
+	 * On mesh devices, it's not safe to set up the log handler at global object construction time and you will likely
+	 * fault.
+	 */
+	void setup();
+
+    /**
+     * @brief Must be called from loop (added in 0.1.0)
+     *
+     * This method must be called from loop(), ideally on every call to loop. The reason is
+     * that it's not really safe to call SPI from the log handler, and it's best to buffer the data and
+     * write it out from loop to avoid SPI conflicts.
+     */
+    void loop();
+
+	/**
+	 * @brief Virtual override for the StreamLogHandler to write data to the log
+	 */
+    virtual size_t write(uint8_t);
+
+protected:
+
+};
+
+template<size_t BUFFER_SIZE>
+class SdCardLogHandler : public SdCardLogHandlerBuffer {
 public:
 	/**
 	 * @brief Constructor. The object is normally instantiated as a global object.
@@ -213,22 +257,11 @@ public:
 	 * @param level  (optional, default is LOG_LEVEL_INFO)
 	 * @param filters (optional, default is none)
 	 */
-	SdCardLogHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level = LOG_LEVEL_INFO, LogCategoryFilters filters = {});
-	virtual ~SdCardLogHandler();
+	explicit SdCardLogHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level = LOG_LEVEL_INFO, LogCategoryFilters filters = {}) :
+		SdCardLogHandlerBuffer(ringBuffer, sizeof(ringBuffer), sd, csPin, spiSettings, level, filters) {};
 
-	/**
-	 * @brief Must be called from setup (added in 0.0.6)
-	 *
-	 * On mesh devices, it's not safe to set up the log handler at global object construction time and you will likely
-	 * fault.
-	 */
-	void setup();
-
-	/**
-	 * @brief Virtual override for the StreamLogHandler to write data to the log
-	 */
-    virtual size_t write(uint8_t);
-
+protected:
+	uint8_t ringBuffer[BUFFER_SIZE];
 };
 
 

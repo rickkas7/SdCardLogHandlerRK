@@ -56,9 +56,9 @@ You can also use the [Adafruit AdaLogger FeatherWing](https://www.adafruit.com/p
 It connects to primary SPI (SPI object). The default connection is D5 for the SD card CS pin. It's possible to cut a trace and add a jumper wire to change the CS pin.
 
 - D5 CS
-- A3 SCK
-- A4 MISO
-- A5 MOSI
+- SCK
+- MISO
+- MOSI
 
 
 ## Using the library
@@ -229,5 +229,32 @@ STARTUP(logHandler.withCardCheckPeriod(30000);
 ```
 
 The value is in milliseconds; that changes the value from 10 seconds to 30 seconds.
+
+
+## Version History
+
+### 0.1.0
+
+- Breaking change: logHandler.loop() must be called from loop()
+
+- Breaking change: SdCardLogHandler must be called with a size parameter that specifies the size of the ring buffer. 
+
+```
+SdCardLogHandler<2048> logHandler(sd, SD_CHIP_SELECT, SPI_FULL_SPEED);
+```
+
+On Gen 3 devices, calling the SPI SD card from a log handler caused connection failures, and it never really was safe
+before, either. Now, a ring buffer is used to transfer the data from the log handler loop. The API change allows the
+buffer size to be specified, but also acts as a speed bump to warn users that the log handler setup() and loop() methods
+must be called, otherwise no data will be logged.
+
+
+### 0.0.6
+
+- Breaking change: logHandler.setup() must be called from setup(). 
+
+This fixes a problem where the log handler cannot be initialized from a global constructor in 0.8.0.rc, particularly with Gen 3 devices.
+ 
+
 
 

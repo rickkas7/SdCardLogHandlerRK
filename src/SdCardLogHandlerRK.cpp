@@ -2,7 +2,6 @@
 
 #include "SdCardLogHandlerRK.h"
 
-
 // Define the debug logging level here
 // 0 = Off
 // 1 = Normal
@@ -24,27 +23,44 @@
 #endif
 
 
+
+
 //
 //
 //
 
-SdCardLogHandler::SdCardLogHandler(SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level, LogCategoryFilters filters) :
-	StreamLogHandler(*this, level, filters), SdCardPrintHandler(sd, csPin, spiSettings) {
+SdCardLogHandlerBuffer::SdCardLogHandlerBuffer(uint8_t *buf, size_t bufSize, SdFat &sd, uint8_t csPin, SPISettings spiSettings, LogLevel level, LogCategoryFilters filters) :
+	StreamLogHandler(*this, level, filters), SdCardPrintHandler(sd, csPin, spiSettings), RingBuffer(buf, bufSize) {
 
 	// This was the old default for SdCardLogHandler. The subclass SdCardPrintHandler now defaults to NULL.
 	withWriteToStream(&Serial);
 }
 
-SdCardLogHandler::~SdCardLogHandler() {
+SdCardLogHandlerBuffer::~SdCardLogHandlerBuffer() {
 }
 
-void SdCardLogHandler::setup() {
+void SdCardLogHandlerBuffer::setup() {
 	// Add this handler into the system log manager
 	LogManager::instance()->addHandler(this);
 }
 
-size_t SdCardLogHandler::write(uint8_t c) {
-	return SdCardPrintHandler::write(c);
+void SdCardLogHandlerBuffer::loop() {
+
+	while(true) {
+		uint8_t c;
+
+		bool bResult = RingBuffer::read(&c);
+		if (!bResult) {
+			break;
+		}
+		SdCardPrintHandler::write(c);
+	}
+}
+
+
+size_t SdCardLogHandlerBuffer::write(uint8_t c) {
+
+	return RingBuffer::write(&c) ? 1 : 0;
 }
 
 //
